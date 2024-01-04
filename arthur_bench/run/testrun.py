@@ -28,7 +28,7 @@ class TestRun(CreateRunRequest):
     def output(self) -> List[str]:
         return [case.output for case in self.test_cases]
 
-    def save(self) -> uuid.UUID:
+    def save(self, replace_existing: bool = False) -> uuid.UUID:
         """Save a test run."""
         if self.id is not None:
             raise ArthurUserError("run is already saved")
@@ -36,6 +36,7 @@ class TestRun(CreateRunRequest):
         resp = self.client.create_new_test_run(
             test_suite_id=str(self.test_suite_id),
             json_body=CreateRunRequest(**self.dict()),
+            replace_existing=replace_existing,
         )
         self.id = resp.id
         return self.id

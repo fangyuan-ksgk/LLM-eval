@@ -197,10 +197,14 @@ class LocalBenchClient(BenchClient):
         os.mkdir(test_suite_dir)
         return test_suite_dir
 
-    def _create_run_dir(self, test_suite_name: str, run_name: str) -> Path:
+    def _create_run_dir(self, test_suite_name: str, run_name: str, replace_existing: bool = False) -> Path:
         run_dir = self._test_suite_dir(test_suite_name) / run_name
         if os.path.exists(run_dir):
-            raise UserValueError(f"run {run_name} already exists")
+            if replace_existing:
+                import shutil
+                shutil.rmtree(run_dir) # rm dir when replace_existing=True @ksgk
+            else:
+                raise UserValueError(f"run {run_name} already exists")
         os.mkdir(run_dir)
         return run_dir
 
@@ -376,7 +380,7 @@ class LocalBenchClient(BenchClient):
         return resp
 
     def create_new_test_run(
-        self, test_suite_id: str, json_body: CreateRunRequest
+        self, test_suite_id: str, json_body: CreateRunRequest, replace_existing: bool = False
     ) -> CreateRunResponse:
         test_suite_name = self._get_suite_name_from_id(test_suite_id)
         if test_suite_name is None:
@@ -390,7 +394,7 @@ class LocalBenchClient(BenchClient):
             **json_body.dict(),
         )
 
-        run_dir = self._create_run_dir(test_suite_name, json_body.name)
+        run_dir = self._create_run_dir(test_suite_name, json_body.name, replace_existing)
         run_file = run_dir / "run.json"
         run_file.write_text(resp.json())
         self._update_run_index(test_suite_name, run_id, json_body.name)

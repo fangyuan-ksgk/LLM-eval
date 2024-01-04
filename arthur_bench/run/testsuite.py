@@ -1,5 +1,6 @@
 import logging
 import pandas as pd
+import os
 from typing import List, Optional, Union
 from arthur_bench.scoring import Scorer
 from arthur_bench.models.models import (
@@ -158,6 +159,7 @@ class TestSuite:
         model_version: Optional[str] = None,
         foundation_model: Optional[str] = None,
         prompt_template: Optional[str] = None,
+        replace_existing: bool = False, # added @ksgk
     ) -> TestRun:
         """
         Score a test run on candidate outputs.
@@ -185,11 +187,13 @@ class TestSuite:
 
         # make sure no existing test run named run_name is already attached to this
         #  suite
-        if self.client.check_run_exists(str(self._data.id), run_name):
+        if self.client.check_run_exists(str(self._data.id), run_name) and not replace_existing:
             raise UserValueError(
                 f"A test run with the name {run_name} already exists. "
                 "Give this test run a unique name and re-run."
-            )
+            )   
+        # return # terminate here for now @ksgk             
+        
 
         candidate_output_list, context_list = _load_run_data_from_args(
             candidate_data=candidate_data,
@@ -262,7 +266,7 @@ class TestSuite:
         )
 
         if save:
-            run.save()
+            run.save(replace_existing=replace_existing) # added @ksgk
 
         return run
 
