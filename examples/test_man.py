@@ -6,6 +6,23 @@ from arthur_bench.run.testsuite import TestSuite
 
 print('Verification of APIKEY: ', os.environ['OPENAI_API_KEY'])
 
+os.environ['OPENAI_API_KEY'] = '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'
+
+print('Test with OPENAI_API_KEY')
+from openai import OpenAI
+client = OpenAI()
+completion = client.chat.completions.create(
+    model="gpt-3.5-turbo",
+    messages=[
+        {"role": "system", "content":"You are a poetic assistant, skilled in explaining stuff in a poetic way."},
+        {"role": "user", "content":"What is the meaning of life?"},
+    ]
+)
+
+print('OPENAI completion check: ')
+print(completion.choices[0].message)
+
+
 eli5 = pd.read_csv('./specificity/eli5_25.csv')
 
 # TestSuite contains scorer & question & context
@@ -160,4 +177,7 @@ llm_score_1, llm_score_2, all_scores = get_scores(p, r1, r2)
 
 print('LLM Score 1: ', llm_score_1)
 print('LLM Score 2: ', llm_score_2)
+
+
+
 
