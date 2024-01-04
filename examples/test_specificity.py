@@ -4,20 +4,21 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from arthur_bench.run.testsuite import TestSuite
 
+
 print('Verification of APIKEY: ', os.environ['OPENAI_API_KEY'])
 
-os.environ['OPENAI_API_KEY'] = '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'
-
-print('Test with OPENAI_API_KEY')
 from openai import OpenAI
 client = OpenAI()
-completion = client.chat.completions.create(
-    model="gpt-3.5-turbo",
-    messages=[
-        {"role": "system", "content":"You are a poetic assistant, skilled in explaining stuff in a poetic way."},
-        {"role": "user", "content":"What is the meaning of life?"},
-    ]
-)
+try:
+    completion = client.chat.completions.create(
+        model="gpt-3.5-turbo",
+        messages=[
+            {"role": "system", "content":"You are a poetic assistant, skilled in explaining stuff in a poetic way."},
+            {"role": "user", "content":"What is the meaning of life?"},
+        ]
+    )
+except:
+    raise RuntimeError(f"Please set OPENAI_API_KEY into sys environment variable")
 
 print('OPENAI completion check: ')
 print(completion.choices[0].message)
